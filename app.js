@@ -1,21 +1,21 @@
 //ID, name, img_path
 let dataChampions = [
-  [0, 'Anarki', '/QcAvatras/anarki.jpg'],
-  [1, 'Blazkowicz', '/QcAvatras/BJ-thumbs.png'],
-  [2, 'Athena', '/QcAvatras/QC-Athena-684x380-03__002_.jpg'],
-  [3, 'Vizor', '/QcAvatras/vizor.jpg'],
-  [4, 'GALENA', '/QcAvatras/galena.jpg'],
-  [5, 'Sorlag', '/QcAvatras/sorlag.jpg'],
-  [6, 'Slash', '/QcAvatras/slash.png'],
-  [7, 'clutch', '/QcAvatras/clutch.jpg'],
-  [8, 'death knight', '/QcAvatras/QC-DeathKnight-684x380-03.jpg'],
-  [9, 'Doom', '/QcAvatras/Doom-thumbs.jpg'],
-  [10, 'Eisen', '/QcAvatras/QC-Eisen-684x380-01.jpg'],
-  [11, 'Keel', '/QcAvatras/keel-thumb.jpg'],
-  [12, 'Nyx', '/QcAvatras/nyx-thumb.jpg'],
-  [13, 'Ranger', '/QcAvatras/ranger-thumb.jpg'],
-  [14, 'ScaleBearer', '/QcAvatras/scalebearer-thumb.jpg'],
-  [15, 'Strogg', '/QcAvatras/STROGG_thumbnail.jpg'],
+  [0, 'Anarki', 'QcAvatras/anarki.jpg'],
+  [1, 'Blazkowicz', 'QcAvatras/BJ-thumbs.png'],
+  [2, 'Athena', 'QcAvatras/QC-Athena-684x380-03__002_.jpg'],
+  [3, 'Vizor', 'QcAvatras/vizor.jpg'],
+  [4, 'GALENA', 'QcAvatras/galena.jpg'],
+  [5, 'Sorlag', 'QcAvatras/sorlag.jpg'],
+  [6, 'Slash', 'QcAvatras/slash.png'],
+  [7, 'clutch', 'QcAvatras/clutch.jpg'],
+  [8, 'death knight', 'QcAvatras/QC-DeathKnight-684x380-03.jpg'],
+  [9, 'Doom', 'QcAvatras/Doom-thumbs.jpg'],
+  [10, 'Eisen', 'QcAvatras/QC-Eisen-684x380-01.jpg'],
+  [11, 'Keel', 'QcAvatras/keel-thumb.jpg'],
+  [12, 'Nyx', 'QcAvatras/nyx-thumb.jpg'],
+  [13, 'Ranger', 'QcAvatras/ranger-thumb.jpg'],
+  [14, 'ScaleBearer', 'QcAvatras/scalebearer-thumb.jpg'],
+  [15, 'Strogg', 'QcAvatras/STROGG_thumbnail.jpg'],
 ]
 let openCard = false //Переменная открыто ли уже одна карточка
 let currentCardOpen = -1 // Текущая открытая карта
@@ -38,10 +38,10 @@ function createQCcards() {
     divString = divString.concat(`
     <div class="champion_card" id="card_${i}" data-type="lock">
       <div class="imgChamp">
-        <img src="/QcAvatras/QClogo.jpeg" />
+        <img src="QcAvatras/QClogo.jpeg" />
       </div>
       <div class="imgChampHoverLogo">
-      <img src="/QcAvatras/QClogo.jpeg" />
+      <img src="QcAvatras/QClogo.jpeg" />
       </div>
     </div>
       `)
@@ -73,12 +73,19 @@ document.addEventListener('click', (event) => {
     selectClickedChampion(event.target.parentNode.parentNode.id) //Шелкнули прямо на картинку
   } else if (event.target.parentNode.className == 'champion_card') {
     selectClickedChampion(event.target.parentNode.id) //Шелкнули на поле карточки
+  } else if (event.target.parentNode.className == 'fullscreen') {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
+    } else {
+      document.documentElement.requestFullscreen()
+    }
   }
 })
 
 //Функция выбора героя по id карточки
 function selectClickedChampion(nodeId) {
   let iD = nodeId.replace('card_', '') //Определяем № какой карточки открыт
+  console.log(eventLoopBlock)
   if (currentCardOpen !== iD && !eventLoopBlock) {
     //обработка повтоного нажатия карточки и блокировки открытия двух карточек
     currentCardOpen = iD
@@ -94,12 +101,14 @@ function selectClickedChampion(nodeId) {
 
       if (currentChamps[lastOpenChampion] == currentChamps[iD]) {
         ///Здесь можно стиль изменить заблокированых карточек
-        console.log('Блокируем обе карточки в открытом положении')
+        findIdCard.querySelector('.imgChamp').style.background =
+          'linear-gradient(45deg, #384bfd, #1cffff, #384bfd, #1cffff)'
+        const findIdCardLO = document.querySelector('#card_' + lastOpenChampion)
+        findIdCardLO.querySelector('.imgChamp').style.background =
+          'linear-gradient(45deg, #384bfd, #1cffff, #384bfd, #1cffff)'
+        //console.log('Блокируем обе карточки в открытом положении')
         openCard = false //Регистрируем закрытие карточки карточки
       } else {
-        console.log(
-          'Ждем 1 секунду и закрываем обе карточки если они не совпали'
-        )
         eventLoopBlock = true
         setTimeout(() => {
           //Закрываем текущую карточку
@@ -111,21 +120,11 @@ function selectClickedChampion(nodeId) {
           findIdCardLO.querySelector('.imgChamp').style.display = 'none'
           openCard = false //Регистрируем закрытие карточки карточки
           eventLoopBlock = false
+          currentCardOpen = -1 //Разрешаем снова нажимать на последую карточку
         }, 1000)
       }
       document.getElementById('count').innerHTML = counts
     }
-
-    //console.log(findIdCard)
-    //console.log('там чемпион с ID', currentChamps[iD])
-
-    // if (setChamps[iD] === -1) {
-    //   setChamps[iD] = currentChamps[iD] //по классу 0 1 2 присваиваем выбор героя
-    //   adddelAnimationSelect(nodeId, true)
-    // } else {
-    //   setChamps[iD] = -1
-    //   adddelAnimationSelect(nodeId, false)
-    // }
   }
 }
 
@@ -183,3 +182,36 @@ function setRandomsChampions() {
 }
 
 setRandomsChampions() //вызываем функцию создания рандомной карты
+
+///Перезапустить игру - перезагрузить страницу
+function NewGame() {
+  if (confirm('Начать новую игру?')) {
+    location.reload()
+    return false
+  } else {
+    return false
+  }
+}
+
+// const fScreenBtn = document.querySelector('#data-fullscreen')
+// if (fScreenBtn.hasAttribute('data-fullscreen')) {
+
+// Если уже в полном, выйти
+// Иначе, снова открыть полный экран
+
+// document.addEventListener(
+//   'click',
+//   function (event) {
+//     // Игнорируем клики, которые не относятся к нашей кнопке
+//     if (!event.target.hasAttribute('data-fullscreen')) return
+
+//     // Если уже в полном, выйти
+//     // Иначе, снова открыть полный экран
+//     if (document.fullscreenElement) {
+//       document.exitFullscreen()
+//     } else {
+//       document.documentElement.requestFullscreen()
+//     }
+//   },
+//   false
+// )
